@@ -1,8 +1,28 @@
-.venv/
+Set-Location "d:\A1 Technovation\web designs all\video downloader"
+
+# 1. Create .gitignore so temporary & downloaded files are not uploaded
+@'
+# Downloaded files & temporary parts
+downloads/
+*.part
+*.part*
+
+# Python cache & virtual environment
 __pycache__/
 *.py[cod]
-downloads/
-.commandcode/
+*$py.class
+venv/
 .env
-.env.*
-!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+'@ | Set-Content -Encoding UTF8 ".gitignore"
+
+# 2. Initialize Git and make the initial commit
+git init
+git add .
+git commit -m "Initial commit: A1 Downloader - High-Speed Internet Download Manager Web App"
+git branch -M main
+
+Write-Host "✅ Repository initialized and committed locally!" -ForegroundColor Green
