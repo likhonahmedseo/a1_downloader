@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NexaDrop is a fast, private link downloader for files and permitted media." />
+  <title>NexaDrop — Internet downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="NexaDrop home"><span class="brand-mark">↘</span><span>Nexa<span class="brand-accent">Drop</span></span></a>
+    <nav><a href="#how">How it works</a><a href="#history">Recent</a><button class="ghost-button" id="themeButton" aria-label="Toggle theme">◐</button></nav>
+  </header>
+  <main>
+    <section class="hero shell">
+      <div class="eyebrow"><span class="pulse"></span> INTERNET DOWNLOADER <span class="eyebrow-line"></span> v1.0</div>
+      <h1>Move the internet<br><em>to your device.</em></h1>
+      <p class="hero-copy">Paste a link. We’ll fetch the file, check the details, and send it straight to your downloads — clean, fast, and without the clutter.</p>
+      <div class="download-card">
+        <div class="input-wrap"><span class="link-icon">↗</span><input id="urlInput" type="url" autocomplete="url" placeholder="Paste a file, video, or media link…" aria-label="Download URL" /><button id="clearButton" class="clear" hidden>×</button></div>
+        <button id="analyzeButton" class="primary-button"><span>Analyze link</span><span class="button-arrow">↗</span></button>
+      </div>
+      <div class="quick-tags"><span>Try a direct file</span><button data-example="https://speed.hetzner.de/100MB.bin">100 MB test file</button><button data-example="https://samplelib.com/lib/preview/mp4/sample-5s.mp4">Sample video</button></div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+    <section id="resultSection" class="result-shell shell" hidden>
+      <div class="section-kicker">LINK PREVIEW <span></span></div>
+      <div class="result-card">
+        <div class="file-icon" id="fileIcon">↓</div><div class="result-main"><div class="result-title" id="resultName">Ready to download</div><div class="result-meta" id="resultMeta">Analyzing…</div></div><div class="result-actions"><button class="secondary-button" id="copyButton">Copy link</button><a class="primary-button disabled" id="downloadButton" href="#"><span>Download</span><span>↓</span></a></div>
+      </div>
+      <div id="mediaNote" class="media-note" hidden><span>✦</span><div><strong>Media page detected</strong><p>This page needs the optional extractor service. If it’s enabled, use the media formats below; otherwise use the site’s own download or export option.</p></div></div>
+    </section>
+    <section id="history" class="history shell">
+      <div class="section-heading"><div><div class="section-kicker">YOUR QUEUE <span></span></div><h2>Recent downloads</h2></div><button id="clearHistory" class="text-button">Clear all</button></div>
+      <div id="historyList" class="history-list"><div class="empty-state"><span class="empty-icon">＋</span><p>Your download history will appear here.</p><small>Files stay on your device. Nothing is uploaded to an account.</small></div></div>
+    </section>
+    <section id="how" class="how shell"><div class="section-kicker">BUILT FOR THE WAY YOU DOWNLOAD <span></span></div><div class="feature-grid"><article><span class="feature-number">01</span><h3>Paste any link</h3><p>Direct files are inspected in seconds, so you know what you’re getting before it starts.</p></article><article><span class="feature-number">02</span><h3>See the details</h3><p>Filename, format, size, and resume support are surfaced before you commit bandwidth.</p></article><article><span class="feature-number">03</span><h3>Save it locally</h3><p>Stream large files through your own server and keep the experience simple and private.</p></article></div></section>
+  </main>
+  <footer class="shell footer"><span>© 2026 NexaDrop</span><span>For files you own or are authorized to download.</span></footer>
+  <script src="/app.js?v=2"></script>
+</body>
+</html>
