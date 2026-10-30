@@ -303,6 +303,13 @@
     }
 
     async function browseDirectory() {
+      const browseBtns = document.querySelectorAll('button[onclick*="browseDirectory"]');
+      browseBtns.forEach(b => {
+        b.dataset.original = b.innerHTML;
+        b.innerText = 'Opening...';
+        b.disabled = true;
+      });
+
       try {
         const res = await fetch('/api/choose_directory', { method: 'POST' });
         const data = await res.json();
@@ -312,6 +319,12 @@
         }
       } catch (e) {
         alert('Could not open folder picker: ' + e);
+      } finally {
+        browseBtns.forEach(b => {
+          b.innerHTML = b.dataset.original || 'Browse...';
+          b.disabled = false;
+        });
+        lucide.createIcons();
       }
     }
 

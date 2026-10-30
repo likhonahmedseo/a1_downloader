@@ -36,8 +36,37 @@ async def api_default_directory():
 
 @app.post("/api/choose_directory")
 async def choose_directory_dialog():
-    """Opens a native system folder dialog to select where to save."""
+    """Opens a native Windows folder dialog to select where to save."""
     def run_dialog():
+        # 1. Try Windows native FolderBrowserDialog via PowerShell (most reliable on Windows)
+        try:
+            ps_script = """
+Add-Type -AssemblyName System.Windows.Forms
+$dialog = New-Object System.Windows.Forms.FolderBrowserDialog
+$dialog.Description = "Select Download Folder for A1 Downloader"
+$dialog.ShowNewFolderButton = $true
+$dialog.SelectedPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile) + "\\Downloads"
+$topForm = New-Object System.Windows.Forms.Form
+$topForm.TopMost = $true
+$result = $dialog.ShowDialog($topForm)
+if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    Write-Output $dialog.SelectedPath
+}
+"""
+            proc = subprocess.run(
+                ["powershell", "-Sta", "-NoProfile", "-Command", ps_script],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            selected = proc.stdout.strip().splitlines()[-1] if proc.stdout.strip() else ""
+            if selected and os.path.exists(selected):
+                return selected
+        except Exception:
+            pass
+
+        # 2. Fallback to Tkinter if PowerShell dialog fails
         try:
             import tkinter as tk
             from tkinter import filedialog
@@ -46,9 +75,12 @@ async def choose_directory_dialog():
             root.attributes("-topmost", True)
             folder = filedialog.askdirectory(title="Choose Download Location", initialdir=get_default_download_dir())
             root.destroy()
-            return folder
+            if folder and os.path.exists(folder):
+                return os.path.abspath(folder)
         except Exception:
-            return ""
+            pass
+
+        return get_default_download_dir()
 
     folder = await asyncio.to_thread(run_dialog)
     return {"path": folder}
