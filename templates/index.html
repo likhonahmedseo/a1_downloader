@@ -483,6 +483,21 @@
       });
     }
 
+    function getShortUrl(url) {
+      if (!url) return '';
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, '');
+        const pathParts = u.pathname.split('/').filter(Boolean);
+        if (pathParts.length === 0) return host;
+        const lastPart = pathParts[pathParts.length - 1];
+        const shortLast = lastPart.length > 25 ? lastPart.substring(0, 22) + '...' : lastPart;
+        return `${host}/.../${shortLast}`;
+      } catch (e) {
+        return url.length > 35 ? url.substring(0, 32) + '...' : url;
+      }
+    }
+
     function renderTasks(tasks) {
       const c = document.getElementById('tasks-container');
       const activeOrRecent = tasks.filter(t => t.status !== 'completed');
@@ -507,7 +522,11 @@
                 </span>
                 <div class="min-w-0">
                   <span class="font-medium text-slate-900 text-xs truncate block" title="${t.title || t.filename}">${t.title || t.filename}</span>
-                  <span class="text-[10px] text-slate-400 font-mono truncate block" title="${t.target_dir}">📁 ${t.target_dir}</span>
+                  <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono truncate">
+                    <span class="truncate text-slate-500" title="${t.url}">🔗 ${getShortUrl(t.url)}</span>
+                    <span>·</span>
+                    <span class="truncate" title="${t.target_dir}">📁 ${t.target_dir}</span>
+                  </div>
                 </div>
               </div>
               <span class="text-[11px] font-mono px-2 py-0.5 rounded uppercase font-medium ${
@@ -569,7 +588,11 @@
             <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
             <div class="min-w-0">
               <p class="font-medium text-slate-800 truncate" title="${t.filename}">${t.filename}</p>
-              <p class="text-[11px] text-slate-400 font-mono truncate" title="${t.filepath}">📁 ${t.filepath}</p>
+              <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono truncate">
+                <span class="truncate text-slate-500" title="${t.url}">🔗 ${getShortUrl(t.url)}</span>
+                <span>·</span>
+                <span class="truncate" title="${t.filepath}">📁 ${t.filepath}</span>
+              </div>
             </div>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
