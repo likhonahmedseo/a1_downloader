@@ -1,4 +1,4 @@
-# NexaDrop
+# A1 Downloader
 
 NexaDrop is a local-first internet downloader web app. It has two lanes:
 
