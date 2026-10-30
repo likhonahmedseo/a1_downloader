@@ -215,6 +215,15 @@ class DownloadManager:
     def cancel(self, task_id: str):
         if t := self.get_task(task_id): t.cancel()
 
+    def remove_task(self, task_id: str):
+        with self._lock:
+            if task_id in self.tasks:
+                t = self.tasks[task_id]
+                t.cancel()
+                del self.tasks[task_id]
+                return True
+        return False
+
     def _run_task(self, task: DownloadTask):
         task.status = "analyzing"
         analysis = analyze_url(task.url)

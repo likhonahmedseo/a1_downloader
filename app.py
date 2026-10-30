@@ -88,6 +88,11 @@ async def cancel_task(task_id: str):
     manager.cancel(task_id)
     return {"ok": True}
 
+@app.delete("/api/tasks/{task_id}")
+async def delete_task(task_id: str):
+    manager.remove_task(task_id)
+    return {"ok": True}
+
 @app.get("/api/download_file")
 async def serve_file(path: str):
     if os.path.exists(path) and os.path.isfile(path):
