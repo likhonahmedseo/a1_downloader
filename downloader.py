@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import time
 import uuid
@@ -7,9 +7,6 @@ import logging
 import requests
 import yt_dlp
 from typing import Dict, Any, Optional, List
-
-DOWNLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "downloads"))
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("A1Downloader")
@@ -22,9 +19,11 @@ BROWSER_HEADERS = {
 }
 
 class DownloadTask:
-    def __init__(self, task_id: str, url: str, threads: int = 8, format_id: str = "best"):
+    def __init__(self, task_id: str, url: str, target_dir: str, threads: int = 8, format_id: str = "best"):
         self.task_id = task_id
         self.url = url
+        self.target_dir = os.path.abspath(target_dir) if target_dir else os.path.abspath(os.path.expanduser("~/Downloads"))
+        os.makedirs(self.target_dir, exist_ok=True)
         self.threads = max(1, min(threads, 32))
         self.format_id = format_id
         self.filename = ""
@@ -39,7 +38,7 @@ class DownloadTask:
         self.title = ""
         self.thumbnail = ""
         self.chunk_count = self.threads
-        self.direct_stream_url = ""  # For TikTok direct CDN
+        self.direct_stream_url = ""
         self._pause_event = threading.Event()
         self._pause_event.set()
         self._cancel_flag = False
@@ -73,6 +72,8 @@ class DownloadTask:
             "id": self.task_id,
             "url": self.url,
             "filename": self.filename or "Analyzing...",
+            "filepath": self.filepath,
+            "target_dir": self.target_dir,
             "title": self.title,
             "thumbnail": self.thumbnail,
             "total_bytes": self.total_bytes,
@@ -99,7 +100,6 @@ def resolve_tiktok_direct(url: str) -> Optional[Dict[str, Any]]:
                 play_url = d.get("play") or d.get("wmplay")
                 music_url = d.get("music")
                 title = d.get("title") or "TikTok_Video"
-                # Clean title for filesystem
                 safe_title = "".join(c for c in title if c.isalnum() or c in " ._-")[:60].strip() or "TikTok_Video"
                 return {
                     "type": "tiktok",
@@ -198,9 +198,9 @@ class DownloadManager:
     def get_task(self, task_id: str) -> Optional[DownloadTask]:
         return self.tasks.get(task_id)
 
-    def start_download(self, url: str, format_id: str = "best", threads: int = 8) -> DownloadTask:
+    def start_download(self, url: str, target_dir: str, format_id: str = "best", threads: int = 8) -> DownloadTask:
         task_id = uuid.uuid4().hex[:8]
-        task = DownloadTask(task_id, url, threads=threads, format_id=format_id)
+        task = DownloadTask(task_id, url, target_dir=target_dir, threads=threads, format_id=format_id)
         with self._lock:
             self.tasks[task_id] = task
         threading.Thread(target=self._run_task, args=(task,), daemon=True).start()
@@ -239,7 +239,7 @@ class DownloadManager:
     def _download_stream(self, task: DownloadTask, direct_url: str):
         """Direct stream downloader with real-time speed & pause/resume."""
         task.status = "downloading"
-        task.filepath = os.path.join(DOWNLOAD_DIR, task.filename)
+        task.filepath = os.path.join(task.target_dir, task.filename)
         try:
             with requests.get(direct_url, headers=BROWSER_HEADERS, stream=True, timeout=30) as r:
                 r.raise_for_status()
@@ -280,13 +280,14 @@ class DownloadManager:
                 task.speed = d.get('speed') or 0.0
                 task.eta = d.get('eta') or 0
                 task.filename = os.path.basename(d.get('filename', 'video.mp4'))
+                task.filepath = d.get('filename', os.path.join(task.target_dir, task.filename))
             elif d['status'] == 'finished':
                 task.status = "merging"
                 task.downloaded_bytes = task.total_bytes
 
         ydl_opts = {
             'format': task.format_id or 'bestvideo+bestaudio/best',
-            'outtmpl': os.path.join(DOWNLOAD_DIR, '%(title).80s.%(ext)s'),
+            'outtmpl': os.path.join(task.target_dir, '%(title).80s.%(ext)s'),
             'progress_hooks': [progress_hook],
             'http_headers': BROWSER_HEADERS,
             'quiet': True,
@@ -297,6 +298,7 @@ class DownloadManager:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(task.url, download=True)
                 task.filename = os.path.basename(ydl.prepare_filename(info))
+                task.filepath = os.path.join(task.target_dir, task.filename)
             task.status = "completed"
         except Exception as e:
             task.status = "failed"
@@ -305,7 +307,7 @@ class DownloadManager:
     def _download_direct(self, task: DownloadTask, analysis: Dict[str, Any]):
         task.filename = analysis.get("filename", "download_file")
         task.total_bytes = analysis.get("filesize", 0)
-        task.filepath = os.path.join(DOWNLOAD_DIR, task.filename)
+        task.filepath = os.path.join(task.target_dir, task.filename)
         supports_chunks = analysis.get("supports_chunks", False)
         task.status = "downloading"
 

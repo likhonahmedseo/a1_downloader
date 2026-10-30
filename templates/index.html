@@ -59,13 +59,18 @@
       background-color: #0f172a;
       transition: width 0.25s ease;
     }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.4);
+    }
   </style>
 </head>
 
 <body class="flex flex-col">
 
   <!-- TOP NAVBAR -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
       
       <!-- Logo -->
@@ -96,7 +101,7 @@
         Video & File Downloader
       </h1>
       <p class="text-xs text-slate-500">
-        Multi-threaded download manager for YouTube, TikTok, Facebook, Instagram, and direct file links.
+        Multi-threaded download manager with custom save locations. Always asks where to save.
       </p>
     </div>
 
@@ -128,7 +133,7 @@
             <i data-lucide="search" class="w-3.5 h-3.5"></i> Inspect
           </button>
           <button
-            onclick="startDownload()"
+            onclick="promptDownload()"
             id="btn-download"
             class="btn-primary px-5 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
@@ -164,7 +169,13 @@
           </div>
         </div>
 
-        <span class="text-slate-400 text-xs">Direct chunk acceleration</span>
+        <!-- Current default save folder preview & change button -->
+        <div class="flex items-center gap-1.5 text-xs text-slate-500">
+          <i data-lucide="folder" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Save to:</span>
+          <span id="quick-folder-label" class="font-mono text-slate-700 max-w-[200px] truncate" title="">Loading...</span>
+          <button onclick="browseDirectory()" class="text-slate-900 font-semibold underline hover:text-slate-600 ml-1">Change</button>
+        </div>
       </div>
 
     </div>
@@ -186,17 +197,70 @@
     <div class="clean-card p-5 space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">
-          Downloaded Files
+          Completed Downloads
         </h2>
-        <button onclick="loadFiles()" class="text-xs text-slate-500 hover:text-slate-900 flex items-center gap-1 transition">
-          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
-        </button>
+        <span class="text-xs text-slate-400">Saved to your selected locations</span>
       </div>
 
-      <div id="files-list" class="divide-y divide-slate-100 text-xs"></div>
+      <div id="files-list" class="divide-y divide-slate-100 text-xs">
+        <p class="py-4 text-center text-slate-400 text-xs">No downloads completed in this session.</p>
+      </div>
     </div>
 
   </main>
+
+  <!-- CONFIRMATION / CHOOSE LOCATION MODAL -->
+  <div id="location-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="clean-card bg-white p-6 max-w-lg w-full space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-700">
+            <i data-lucide="folder-down" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Choose Download Location</h3>
+            <p class="text-xs text-slate-500">Select where you want to save this download</p>
+          </div>
+        </div>
+        <button onclick="closeLocationModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-slate-700 block">Download Directory Path:</label>
+        <div class="flex gap-2">
+          <input
+            id="modal-path-input"
+            type="text"
+            class="clean-input flex-1 px-3 py-2 rounded text-xs text-slate-900 font-mono"
+            placeholder="C:\Users\...\Downloads"
+          />
+          <button
+            onclick="browseDirectoryFromModal()"
+            class="btn-secondary px-3 py-2 rounded text-xs font-semibold flex items-center gap-1.5 shrink-0">
+            <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Browse...
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          Click "Browse..." to open your Windows folder picker, or type/paste any custom folder path.
+        </p>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button
+          onclick="closeLocationModal()"
+          class="btn-secondary px-4 py-2 rounded text-xs font-semibold">
+          Cancel
+        </button>
+        <button
+          onclick="confirmDownload()"
+          class="btn-primary px-5 py-2 rounded text-xs font-semibold flex items-center gap-1.5">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Start Download
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MINIMAL FOOTER -->
   <footer class="border-t border-slate-200 py-4 text-center text-xs text-slate-400">
@@ -206,6 +270,49 @@
   <script>
     lucide.createIcons();
     let currentTasks = [];
+    let selectedSaveDir = "";
+
+    // Load initial default directory (user's home / Downloads)
+    async function loadDefaultDirectory() {
+      try {
+        const res = await fetch('/api/default_directory');
+        const data = await res.json();
+        selectedSaveDir = data.path || "";
+        updateFolderLabels(selectedSaveDir);
+      } catch (e) {
+        selectedSaveDir = "";
+      }
+    }
+    loadDefaultDirectory();
+
+    function updateFolderLabels(path) {
+      const lbl = document.getElementById('quick-folder-label');
+      const modalInp = document.getElementById('modal-path-input');
+      if (lbl) {
+        lbl.innerText = path || 'Not selected';
+        lbl.title = path || '';
+      }
+      if (modalInp) {
+        modalInp.value = path || '';
+      }
+    }
+
+    async function browseDirectory() {
+      try {
+        const res = await fetch('/api/choose_directory', { method: 'POST' });
+        const data = await res.json();
+        if (data.path) {
+          selectedSaveDir = data.path;
+          updateFolderLabels(selectedSaveDir);
+        }
+      } catch (e) {
+        alert('Could not open folder picker: ' + e);
+      }
+    }
+
+    async function browseDirectoryFromModal() {
+      await browseDirectory();
+    }
 
     function detectPlatform(val) {
       val = val.trim().toLowerCase();
@@ -262,6 +369,7 @@
       const data = JSON.parse(e.data);
       currentTasks = data.tasks || [];
       renderTasks(currentTasks);
+      renderCompletedList(currentTasks);
       
       const active = currentTasks.filter(t => t.status === 'downloading');
       const totalSpeed = active.reduce((sum, t) => sum + (t.speed_mb || 0), 0);
@@ -295,35 +403,70 @@
       }
     }
 
-    async function startDownload() {
+    // Modal popup asking where to download
+    function promptDownload() {
       const url = document.getElementById('url-input').value.trim();
       if (!url) return alert('Please paste a link first!');
+      updateFolderLabels(selectedSaveDir);
+      document.getElementById('location-modal').classList.remove('hidden');
+    }
+
+    function closeLocationModal() {
+      document.getElementById('location-modal').classList.add('hidden');
+    }
+
+    async function confirmDownload() {
+      const url = document.getElementById('url-input').value.trim();
+      const targetDir = document.getElementById('modal-path-input').value.trim();
+
+      if (!targetDir) {
+        return alert('Please select or enter a valid directory path to save the file.');
+      }
+
+      selectedSaveDir = targetDir;
+      updateFolderLabels(selectedSaveDir);
+      closeLocationModal();
+
       const threads = parseInt(document.getElementById('threads-select').value);
       const format_id = document.getElementById('format-select').value;
 
       await fetch('/api/download', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ url, format_id, threads })
+        body: JSON.stringify({
+          url,
+          target_dir: selectedSaveDir,
+          format_id,
+          threads
+        })
       });
 
       document.getElementById('url-input').value = '';
       detectPlatform('');
-      loadFiles();
     }
 
     async function controlTask(id, act) {
       await fetch(`/api/tasks/${id}/${act}`, { method: 'POST' });
     }
 
+    async function openFileLocation(filepath) {
+      await fetch('/api/open_folder', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ path: filepath })
+      });
+    }
+
     function renderTasks(tasks) {
       const c = document.getElementById('tasks-container');
-      if (!tasks || !tasks.length) {
+      const activeOrRecent = tasks.filter(t => t.status !== 'completed');
+
+      if (!activeOrRecent || !activeOrRecent.length) {
         c.innerHTML = '<div class="clean-card p-6 text-center text-slate-400 text-xs">No active transfers.</div>';
         return;
       }
 
-      c.innerHTML = tasks.map(t => {
+      c.innerHTML = activeOrRecent.map(t => {
         const isDone = t.status === 'completed';
         const isFail = t.status === 'failed';
         const isPaused = t.status === 'paused';
@@ -336,7 +479,10 @@
                 <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-semibold border border-slate-200 shrink-0">
                   ${t.threads}×
                 </span>
-                <span class="font-medium text-slate-900 text-xs truncate" title="${t.title || t.filename}">${t.title || t.filename}</span>
+                <div class="min-w-0">
+                  <span class="font-medium text-slate-900 text-xs truncate block" title="${t.title || t.filename}">${t.title || t.filename}</span>
+                  <span class="text-[10px] text-slate-400 font-mono truncate block" title="${t.target_dir}">📁 ${t.target_dir}</span>
+                </div>
               </div>
               <span class="text-[11px] font-mono px-2 py-0.5 rounded uppercase font-medium ${
                 isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
@@ -346,7 +492,7 @@
               }">${t.status}</span>
             </div>
 
-            <!-- Single solid progress bar (no gradient) -->
+            <!-- Single solid progress bar -->
             <div class="w-full bg-slate-100 rounded h-1.5 overflow-hidden">
               <div class="${isDone ? 'bg-emerald-600' : isFail ? 'bg-rose-600' : 'progress-fill'} h-full rounded" style="width: ${t.percent}%"></div>
             </div>
@@ -371,11 +517,6 @@
                     <i data-lucide="play" class="w-3 h-3"></i>
                   </button>
                 ` : ''}
-                ${isDone ? `
-                  <a href="/api/files/${encodeURIComponent(t.filename)}" download class="px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-[11px] font-medium flex items-center gap-1 transition">
-                    <i data-lucide="download" class="w-3 h-3"></i> Save
-                  </a>
-                ` : ''}
                 <button onclick="controlTask('${t.id}','cancel')" class="p-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 rounded transition" title="Cancel">
                   <i data-lucide="x" class="w-3 h-3"></i>
                 </button>
@@ -387,36 +528,38 @@
       lucide.createIcons();
     }
 
-    async function loadFiles() {
-      const res = await fetch('/api/files');
-      const files = await res.json();
+    function renderCompletedList(tasks) {
       const c = document.getElementById('files-list');
+      const completed = tasks.filter(t => t.status === 'completed');
 
-      if (!files.length) {
-        c.innerHTML = '<p class="py-4 text-center text-slate-400 text-xs">No downloaded files yet.</p>';
+      if (!completed.length) {
+        c.innerHTML = '<p class="py-4 text-center text-slate-400 text-xs">No downloads completed in this session.</p>';
         return;
       }
 
-      c.innerHTML = files.map(f => `
+      c.innerHTML = completed.map(t => `
         <div class="py-2.5 flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5 min-w-0">
-            <i data-lucide="file" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
             <div class="min-w-0">
-              <p class="font-medium text-slate-800 truncate" title="${f.name}">${f.name}</p>
-              <p class="text-[11px] text-slate-400 font-mono">${f.size_mb} MB</p>
+              <p class="font-medium text-slate-800 truncate" title="${t.filename}">${t.filename}</p>
+              <p class="text-[11px] text-slate-400 font-mono truncate" title="${t.filepath}">📁 ${t.filepath}</p>
             </div>
           </div>
-          <a href="/api/files/${encodeURIComponent(f.name)}" download
-             class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium flex items-center gap-1 transition shrink-0">
-            <i data-lucide="download" class="w-3 h-3"></i> Save
-          </a>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="openFileLocation('${encodeURIComponent(t.filepath)}')"
+               class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium flex items-center gap-1 transition">
+              <i data-lucide="folder" class="w-3 h-3"></i> Open Folder
+            </button>
+            <a href="/api/download_file?path=${encodeURIComponent(t.filepath)}" download
+               class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium flex items-center gap-1 transition">
+              <i data-lucide="download" class="w-3 h-3"></i> Save Copy
+            </a>
+          </div>
         </div>
       `).join('');
       lucide.createIcons();
     }
-
-    loadFiles();
-    setInterval(loadFiles, 10000);
   </script>
 </body>
 </html>
