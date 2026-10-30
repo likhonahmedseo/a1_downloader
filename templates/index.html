@@ -12,31 +12,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#f5f3ff',
-              100: '#ede9fe',
-              500: '#8b5cf6',
-              600: '#7c3aed',
-              700: '#6d28d9',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
     body {
-      background-color: #fafbfc;
+      background-color: #f8fafc;
       color: #0f172a;
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       min-height: 100vh;
@@ -45,35 +23,41 @@
     .clean-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-      transition: all 0.2s ease;
+      border-radius: 12px;
     }
 
     .clean-input {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      transition: all 0.2s ease;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      transition: border-color 0.15s ease;
     }
     .clean-input:focus {
-      background: #ffffff;
-      border-color: #7c3aed;
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+      outline: none;
+      border-color: #0f172a;
     }
 
-    .btn-brand {
-      background: #7c3aed;
+    .btn-primary {
+      background-color: #0f172a;
       color: #ffffff;
-      transition: all 0.2s ease;
+      transition: background-color 0.15s ease;
     }
-    .btn-brand:hover {
-      background: #6d28d9;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+    .btn-primary:hover {
+      background-color: #1e293b;
     }
 
-    .progress-bar-fill {
-      background: linear-gradient(90deg, #7c3aed, #6366f1);
-      transition: width 0.3s ease;
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      transition: background-color 0.15s ease;
+    }
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .progress-fill {
+      background-color: #0f172a;
+      transition: width 0.25s ease;
     }
   </style>
 </head>
@@ -82,66 +66,57 @@
 
   <!-- TOP NAVBAR -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
       
       <!-- Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-violet-600 flex items-center justify-center font-extrabold text-white text-base shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 bg-slate-900 rounded-md flex items-center justify-center font-bold text-white text-xs">
           A1
         </div>
-        <div>
-          <div class="font-extrabold text-slate-900 text-base leading-tight tracking-tight flex items-center gap-1.5">
-            A1 Downloader
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-100">PRO</span>
-          </div>
-          <p class="text-xs text-slate-400">Fast, Minimalist Video & File Downloader</p>
-        </div>
+        <span class="font-bold text-slate-900 text-sm tracking-tight">
+          A1 Downloader
+        </span>
       </div>
 
       <!-- Real-time network speed pill -->
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-mono text-slate-600">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="speed-meter" class="font-semibold text-slate-800">0.0 MB/s</span>
-        </div>
+      <div class="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1 rounded-md text-xs font-mono text-slate-700">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span id="speed-meter" class="font-semibold">0.0 MB/s</span>
       </div>
 
     </div>
   </header>
 
   <!-- MAIN CONTENT -->
-  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
 
     <!-- HERO HEADER -->
-    <div class="text-center space-y-2">
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-        Download anything with a single link
+    <div class="space-y-1">
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+        Video & File Downloader
       </h1>
-      <p class="text-sm text-slate-500 max-w-lg mx-auto">
-        Multi-threaded acceleration for TikTok, YouTube, Facebook, Instagram, and any direct file URL.
+      <p class="text-xs text-slate-500">
+        Multi-threaded download manager for YouTube, TikTok, Facebook, Instagram, and direct file links.
       </p>
     </div>
 
     <!-- MAIN DOWNLOAD INPUT BOX -->
-    <div class="clean-card rounded-2xl p-6 sm:p-7 space-y-4">
+    <div class="clean-card p-5 space-y-3.5">
       
       <!-- Input bar -->
-      <div class="flex flex-col sm:flex-row gap-3">
+      <div class="flex flex-col sm:flex-row gap-2">
         <div class="relative flex-1">
-          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <i data-lucide="link" class="w-4 h-4"></i>
-          </div>
           <input
             id="url-input"
             type="text"
             oninput="detectPlatform(this.value)"
-            placeholder="Paste YouTube, TikTok, Facebook, Instagram, or direct file link..."
-            class="clean-input w-full pl-10 pr-24 py-3.5 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium"
+            placeholder="Paste URL here..."
+            class="clean-input w-full pl-3.5 pr-20 py-2.5 rounded-lg text-sm text-slate-900 placeholder-slate-400 font-medium"
           />
           <button
             onclick="pasteFromClipboard()"
-            class="absolute inset-y-1.5 right-2 px-3 py-1 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition border border-slate-200 shadow-sm">
-            <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> Paste
+            class="absolute inset-y-1 right-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition border border-slate-200 flex items-center gap-1">
+            <i data-lucide="clipboard" class="w-3 h-3"></i> Paste
           </button>
         </div>
 
@@ -149,90 +124,83 @@
           <button
             onclick="inspectLink()"
             id="btn-inspect"
-            class="px-4 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition border border-slate-200">
-            <i data-lucide="search" class="w-4 h-4 text-slate-500"></i> Inspect
+            class="btn-secondary px-3.5 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i> Inspect
           </button>
           <button
             onclick="startDownload()"
             id="btn-download"
-            class="btn-brand px-6 py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-            <i data-lucide="download" class="w-4 h-4"></i> Download
+            class="btn-primary px-5 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
           </button>
         </div>
       </div>
 
       <!-- Settings & Detected Platform Row -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100 text-xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
         
-        <div class="flex flex-wrap items-center gap-4 text-slate-600">
+        <div class="flex flex-wrap items-center gap-3 text-slate-600">
           <!-- Platform Badge -->
-          <div id="platform-tag" class="hidden text-xs font-semibold px-2.5 py-1 rounded-full border"></div>
+          <div id="platform-tag" class="hidden text-xs font-medium px-2 py-0.5 rounded border"></div>
 
           <!-- Threads selection -->
-          <div class="flex items-center gap-2">
-            <span class="text-slate-500 font-medium">Threads:</span>
-            <select id="threads-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 text-xs font-semibold focus:outline-none">
-              <option value="4">4 Segments</option>
-              <option value="8" selected>8 Segments (Recommended)</option>
-              <option value="16">16 Segments (Turbo)</option>
-              <option value="32">32 Segments (Max)</option>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">Threads:</span>
+            <select id="threads-select" class="bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-800 text-xs font-medium focus:outline-none">
+              <option value="4">4 Chunks</option>
+              <option value="8" selected>8 Chunks (Default)</option>
+              <option value="16">16 Chunks</option>
+              <option value="32">32 Chunks</option>
             </select>
           </div>
 
-          <!-- Format selection (for media) -->
-          <div id="media-options" class="hidden flex items-center gap-2">
-            <span class="text-slate-500 font-medium">Quality:</span>
-            <select id="format-select" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 text-xs font-semibold focus:outline-none">
-              <option value="bestvideo+bestaudio/best">Best Available (Auto)</option>
+          <!-- Format selection -->
+          <div id="media-options" class="hidden flex items-center gap-1.5">
+            <span class="text-slate-500">Format:</span>
+            <select id="format-select" class="bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-800 text-xs font-medium focus:outline-none">
+              <option value="bestvideo+bestaudio/best">Best Available (Video+Audio)</option>
               <option value="bestaudio/best">Audio Only (MP3)</option>
             </select>
           </div>
         </div>
 
-        <div class="text-slate-400 text-xs flex items-center gap-1.5">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
-          Direct line acceleration
-        </div>
+        <span class="text-slate-400 text-xs">Direct chunk acceleration</span>
       </div>
 
     </div>
 
     <!-- ACTIVE DOWNLOADS SECTION -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-          <i data-lucide="activity" class="w-4 h-4 text-violet-600"></i>
-          Active Transfers
-        </h2>
-      </div>
+    <div class="space-y-2.5">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+        Active Queue
+      </h2>
 
-      <div id="tasks-container" class="space-y-3">
-        <div class="clean-card rounded-2xl p-8 text-center text-slate-400 text-sm">
-          No active transfers. Paste any link above to begin downloading.
+      <div id="tasks-container" class="space-y-2">
+        <div class="clean-card p-6 text-center text-slate-400 text-xs">
+          No active transfers.
         </div>
       </div>
     </div>
 
     <!-- COMPLETED DOWNLOADS SECTION -->
-    <div class="clean-card rounded-2xl p-6 space-y-4">
+    <div class="clean-card p-5 space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">
           Downloaded Files
         </h2>
         <button onclick="loadFiles()" class="text-xs text-slate-500 hover:text-slate-900 flex items-center gap-1 transition">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
         </button>
       </div>
 
-      <div id="files-list" class="divide-y divide-slate-100 text-sm"></div>
+      <div id="files-list" class="divide-y divide-slate-100 text-xs"></div>
     </div>
 
   </main>
 
   <!-- MINIMAL FOOTER -->
-  <footer class="border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
-    <p>A1 Downloader Pro · Minimal, Clean & Accelerated</p>
+  <footer class="border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+    <p>A1 Downloader</p>
   </footer>
 
   <script>
@@ -252,24 +220,24 @@
 
       tag.classList.remove('hidden');
       if (val.includes('youtube.com') || val.includes('youtu.be')) {
-        tag.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200';
-        tag.innerHTML = 'YouTube Video';
+        tag.className = 'text-xs font-medium px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200';
+        tag.innerHTML = 'YouTube';
         mediaOpt.classList.remove('hidden');
       } else if (val.includes('facebook.com') || val.includes('fb.watch')) {
-        tag.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200';
-        tag.innerHTML = 'Facebook Video';
+        tag.className = 'text-xs font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200';
+        tag.innerHTML = 'Facebook';
         mediaOpt.classList.remove('hidden');
       } else if (val.includes('tiktok.com')) {
-        tag.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-pink-50 text-pink-600 border border-pink-200';
-        tag.innerHTML = 'TikTok (No Watermark)';
+        tag.className = 'text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200';
+        tag.innerHTML = 'TikTok';
         mediaOpt.classList.remove('hidden');
       } else if (val.includes('instagram.com')) {
-        tag.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-purple-600 border border-purple-200';
-        tag.innerHTML = 'Instagram Reel';
+        tag.className = 'text-xs font-medium px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200';
+        tag.innerHTML = 'Instagram';
         mediaOpt.classList.remove('hidden');
       } else {
-        tag.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200';
-        tag.innerHTML = 'Direct File URL';
+        tag.className = 'text-xs font-medium px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200';
+        tag.innerHTML = 'Direct File';
         mediaOpt.classList.add('hidden');
       }
     }
@@ -314,15 +282,15 @@
         const d = await res.json();
         if (d.type === 'media') {
           document.getElementById('media-options').classList.remove('hidden');
-          alert(`✨ Media: ${d.title}\nSource: ${d.uploader || 'Web Stream'}`);
+          alert(`Media: ${d.title}`);
         } else {
           document.getElementById('media-options').classList.add('hidden');
-          alert(`📦 File: ${d.filename} (${(d.filesize / 1024 / 1024).toFixed(1)} MB)`);
+          alert(`File: ${d.filename} (${(d.filesize / 1024 / 1024).toFixed(1)} MB)`);
         }
       } catch (err) {
         alert('Inspection error: ' + err);
       } finally {
-        btn.innerHTML = '<i data-lucide="search" class="w-4 h-4 text-slate-500"></i> Inspect';
+        btn.innerHTML = '<i data-lucide="search" class="w-3.5 h-3.5"></i> Inspect';
         lucide.createIcons();
       }
     }
@@ -351,7 +319,7 @@
     function renderTasks(tasks) {
       const c = document.getElementById('tasks-container');
       if (!tasks || !tasks.length) {
-        c.innerHTML = '<div class="clean-card rounded-2xl p-8 text-center text-slate-400 text-sm">No active transfers.</div>';
+        c.innerHTML = '<div class="clean-card p-6 text-center text-slate-400 text-xs">No active transfers.</div>';
         return;
       }
 
@@ -361,65 +329,55 @@
         const isPaused = t.status === 'paused';
         const isActive = t.status === 'downloading' || t.status === 'merging';
 
-        // Chunk progress segments
-        const chunkCount = t.chunk_count || t.threads || 8;
-        const chunkSegs = Array.from({length: chunkCount}, (_, i) => {
-          const active = t.percent > (i / chunkCount) * 100;
-          return `<div class="h-1 flex-1 rounded-sm ${active ? 'bg-violet-600' : 'bg-slate-200'}"></div>`;
-        }).join('');
-
         return `
-          <div class="clean-card rounded-2xl p-5 space-y-3">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3 min-w-0">
-                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200 shrink-0">
+          <div class="clean-card p-4 space-y-2.5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-semibold border border-slate-200 shrink-0">
                   ${t.threads}×
                 </span>
-                <span class="font-semibold text-slate-900 text-sm truncate" title="${t.title || t.filename}">${t.title || t.filename}</span>
+                <span class="font-medium text-slate-900 text-xs truncate" title="${t.title || t.filename}">${t.title || t.filename}</span>
               </div>
-              <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full uppercase ${
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded uppercase font-medium ${
                 isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                 isFail ? 'bg-rose-50 text-rose-700 border border-rose-200' :
                 isPaused ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                'bg-violet-50 text-violet-700 border border-violet-200'
+                'bg-slate-100 text-slate-700 border border-slate-200'
               }">${t.status}</span>
             </div>
 
-            <!-- Progress Bar -->
-            <div class="space-y-1.5">
-              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
-                <div class="${isActive ? 'progress-bar-fill' : isDone ? 'bg-emerald-500' : 'bg-slate-400'} h-full transition-all duration-300 rounded-full" style="width: ${t.percent}%"></div>
-              </div>
-              <div class="flex gap-1">${chunkSegs}</div>
+            <!-- Single solid progress bar (no gradient) -->
+            <div class="w-full bg-slate-100 rounded h-1.5 overflow-hidden">
+              <div class="${isDone ? 'bg-emerald-600' : isFail ? 'bg-rose-600' : 'progress-fill'} h-full rounded" style="width: ${t.percent}%"></div>
             </div>
 
             <!-- Stats & Action Buttons -->
-            <div class="flex items-center justify-between text-xs font-mono text-slate-500 pt-1">
-              <div class="flex items-center gap-3">
-                <span class="text-slate-900 font-bold">${t.percent}%</span>
+            <div class="flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <div class="flex items-center gap-2.5">
+                <span class="text-slate-900 font-semibold">${t.percent}%</span>
                 <span>${(t.downloaded_bytes / 1024 / 1024).toFixed(1)} / ${(t.total_bytes / 1024 / 1024).toFixed(1)} MB</span>
-                ${isActive ? `<span class="text-violet-600 font-semibold">${t.speed_mb} MB/s</span>` : ''}
+                ${isActive ? `<span class="text-slate-800 font-medium">${t.speed_mb} MB/s</span>` : ''}
                 ${isActive && t.eta ? `<span>ETA: ${t.eta}s</span>` : ''}
               </div>
 
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1">
                 ${isActive ? `
-                  <button onclick="controlTask('${t.id}','pause')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" title="Pause">
-                    <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+                  <button onclick="controlTask('${t.id}','pause')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition" title="Pause">
+                    <i data-lucide="pause" class="w-3 h-3"></i>
                   </button>
                 ` : ''}
                 ${isPaused ? `
-                  <button onclick="controlTask('${t.id}','resume')" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition" title="Resume">
-                    <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <button onclick="controlTask('${t.id}','resume')" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition" title="Resume">
+                    <i data-lucide="play" class="w-3 h-3"></i>
                   </button>
                 ` : ''}
                 ${isDone ? `
-                  <a href="/api/files/${encodeURIComponent(t.filename)}" download class="px-3 py-1 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-lg text-xs font-bold border border-violet-200 flex items-center gap-1.5 transition">
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Save
+                  <a href="/api/files/${encodeURIComponent(t.filename)}" download class="px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-[11px] font-medium flex items-center gap-1 transition">
+                    <i data-lucide="download" class="w-3 h-3"></i> Save
                   </a>
                 ` : ''}
-                <button onclick="controlTask('${t.id}','cancel')" class="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 rounded-lg transition" title="Cancel">
-                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                <button onclick="controlTask('${t.id}','cancel')" class="p-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 rounded transition" title="Cancel">
+                  <i data-lucide="x" class="w-3 h-3"></i>
                 </button>
               </div>
             </div>
@@ -435,24 +393,22 @@
       const c = document.getElementById('files-list');
 
       if (!files.length) {
-        c.innerHTML = '<p class="py-6 text-center text-slate-400 text-xs">No downloaded files in library yet.</p>';
+        c.innerHTML = '<p class="py-4 text-center text-slate-400 text-xs">No downloaded files yet.</p>';
         return;
       }
 
       c.innerHTML = files.map(f => `
-        <div class="py-3 flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shrink-0">
-              <i data-lucide="file" class="w-4 h-4"></i>
-            </div>
+        <div class="py-2.5 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <i data-lucide="file" class="w-4 h-4 text-slate-400 shrink-0"></i>
             <div class="min-w-0">
-              <p class="font-medium text-slate-900 text-sm truncate" title="${f.name}">${f.name}</p>
-              <p class="text-xs text-slate-400 font-mono">${f.size_mb} MB</p>
+              <p class="font-medium text-slate-800 truncate" title="${f.name}">${f.name}</p>
+              <p class="text-[11px] text-slate-400 font-mono">${f.size_mb} MB</p>
             </div>
           </div>
           <a href="/api/files/${encodeURIComponent(f.name)}" download
-             class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shrink-0 shadow-sm">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i> Save
+             class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium flex items-center gap-1 transition shrink-0">
+            <i data-lucide="download" class="w-3 h-3"></i> Save
           </a>
         </div>
       `).join('');
